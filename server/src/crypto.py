@@ -6,6 +6,10 @@ def generateSalt():
 
     return ('').join([r.choice(string.ascii_letters) for c in range(8)])
 
+def hashToken(token):
+
+    return sha256(str(token).encode('utf-8')).hexdigest()
+
 def hashPasswordWithoutSalt(pwd):
 
     salt = generateSalt()

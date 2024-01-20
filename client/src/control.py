@@ -4,6 +4,7 @@ from tkinter import ttk
 import socket as s
 import json
 import datetime as dt
+import os
 
 from friendframe import FriendFrame
 from model import Model
@@ -13,7 +14,7 @@ class Control:
     app = None
 
     host = "127.0.0.1"
-    port = 2400
+    port = 2402
     clientSocket = None
 
     @staticmethod
@@ -21,6 +22,20 @@ class Control:
 
         Control.clientSocket = s.socket(socket.AF_INET, socket.SOCK_STREAM)
         Control.clientSocket.connect((Control.host, Control.port))
+
+        if os.path.isfile("logintoken.txt"):
+
+            username = None
+            seriesID = None
+            token = None
+
+            with open("logintoken.txt", "r") as f:
+
+                username = f.readline()[:-1]
+                seriesID = int(f.readline()[:-1])
+                token = int(f.readline())
+
+            Control.send(json.dumps({"type": 3, "username": username, "seriesID": seriesID, "token": token}))
 
         while True:
 
@@ -37,6 +52,12 @@ class Control:
                 Model.setUsername(result["username"])
                 Model.friendsFromList(result["friends"])
                 Model.messagesFromList(result["messages"])
+
+                if "seriesID" in result:
+
+                    with open("logintoken.txt", "w") as f:
+
+                        f.write(Model.username + "\n" + str(result["seriesID"]) + "\n" + str(result["token"]))
 
                 Control.app.loadPage("Home")
 
@@ -58,9 +79,9 @@ class Control:
         Control.clientSocket.sendall(message)
 
     @staticmethod
-    def loginWithPassword(username, password):
+    def loginWithPassword(username, password, rememberMe):
 
-        message = json.dumps({"type": 2, "username": username, "password": password})
+        message = json.dumps({"type": 2, "username": username, "password": password, "rememberMe": rememberMe})
 
         Control.send(message)
 

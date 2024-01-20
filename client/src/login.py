@@ -10,6 +10,7 @@ class LoginPage(tk.Frame):
 
         self.username = tk.StringVar(self)
         self.password = tk.StringVar(self)
+        self.rememberMe = tk.IntVar(self)
 
         loginFrame = tk.Frame(self)
         loginFrame.place(anchor=tk.N, relx=.5, rely=.15, width=500, relh=.8)
@@ -35,8 +36,8 @@ class LoginPage(tk.Frame):
         self.pWDEntry = tk.Entry(pWDFrame, textvariable=self.password)
         self.pWDEntry.place(x=0, y=50, relw=1)
 
-        self.rememberMeButton = tk.Checkbutton(loginFrame, justify=tk.CENTER, text="Remember Me")
+        self.rememberMeButton = tk.Checkbutton(loginFrame, justify=tk.CENTER, text="Remember Me", var=self.rememberMe)
         self.rememberMeButton.place(anchor=tk.N, relx=.5, y=500)
 
-        self.loginButton = tk.Button(loginFrame, text="Log In", command=(lambda: Control.loginWithPassword(self.username.get(), self.password.get())))
+        self.loginButton = tk.Button(loginFrame, text="Log In", command=(lambda: Control.loginWithPassword(self.username.get(), self.password.get(), self.rememberMe.get())))
         self.loginButton.place(anchor=tk.N, relx=.5, y=600)

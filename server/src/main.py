@@ -7,7 +7,7 @@ import auth
 import datetime as dt
 
 HOST = "127.0.0.1"
-PORT = 2400
+PORT = 2402
 
 users = {}
 
@@ -56,11 +56,38 @@ def handleConnection(conn):
                                 "friends": db.getUserFriends(result["username"]),
                                 "messages": db.getUserMessages(result["username"])}
 
+                    if result["rememberMe"]:
+
+                        userDict["seriesID"], userDict["token"] = auth.createLoginToken(username)
+
                     send(conn, json.dumps(userDict, default=str))
 
                 else:
 
                     send(conn, json.dumps({"type": 0, "errorMessage": "Invalid username or password"}))
+
+            elif result["type"] == 3:
+
+                user = auth.verifyUserUsingToken(result["username"], result["seriesID"], result["token"])
+
+                if user:
+
+                    username = result["username"]
+                    users[username] = conn
+
+                    userDict = {"type": 2,
+                                "username": result["username"],
+                                "friends": db.getUserFriends(result["username"]),
+                                "messages": db.getUserMessages(result["username"]),
+                                "seriesID": result["seriesID"]}
+
+                    userDict["token"] = auth.updateLoginToken(result["username"], result["seriesID"])
+
+                    send(conn, json.dumps(userDict, default=str))
+
+                else:
+
+                    send(conn, json.dumps({"type": 0, "errorMessage": "Invalid token"}))
 
             if username:
 
@@ -88,7 +115,9 @@ def handleConnection(conn):
 
             users.pop(username)
 
-    except:
+    except Exception as error:
+
+        print(f"error occurred: {error}")
 
         if username:
 
