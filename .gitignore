@@ -1,2 +1,4 @@
 venv
 .idea/workspace.xml
+client/src/__pycache__
+server/src/__pycache__
